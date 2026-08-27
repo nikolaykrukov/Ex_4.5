@@ -4,6 +4,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.By;
+import org.openqa.selenium.PageLoadStrategy;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -22,9 +23,10 @@ public class ToolsQA {
     @BeforeEach
     public void setUp() {
         ChromeOptions options = new ChromeOptions();
-        options.addArguments("--remote-allow-origins=*");
+        options.setPageLoadStrategy(PageLoadStrategy.EAGER);
         driver = new ChromeDriver(options);
         driver.manage().window().maximize();
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(5));
     }
 
     @AfterEach
@@ -35,13 +37,11 @@ public class ToolsQA {
     @Test
     public void enable() {
         driver.get("https://demoqa.com/dynamic-properties");
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
 
-        WebElement button = wait.until(
-                ExpectedConditions.elementToBeClickable(By.cssSelector("#visibleAfter"))
-        );
+        WebElement disabledButton = driver.findElement(By.cssSelector("#visibleAfter"));
 
-        assertTrue(button.isDisplayed(), "Кнопка должна отображаться");
-        assertTrue(button.isEnabled(), "Кнопка должна быть включена");
+        wait.until(ExpectedConditions.elementToBeClickable(disabledButton));
+        assertTrue(disabledButton.isDisplayed(), "Кнопка не стала активной");
     }
 }
